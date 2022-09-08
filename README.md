@@ -26,10 +26,10 @@ Surf DB has the following features:
 * Ability to have **contract level access control condition**, ex. We can have a condtion which allows only members of multi sig to update the row (in our case, the ceramic stream)
 * Can be decentralized by **hosting mutliple nodes**: the data itself is stored on ceramic which is decentralized but the caching and the ceramic indexer itself also can be decentralized
 * It supports **realtime updates**:get updated whenever there is a change in the database
-* **Upload files**: it supports uploading files either to arweave or a dedicated s3 type object storage
-* You can **eliminate data islands by forking an existing surfDB node**: if you want to create a frontend on someone else's data you can just **fork their node and then use your node to build out your frontend**, You don't have to start from 0, and the main data node owner can even monetize this.
-* Instantly deploy it in just a few clicks
-* Supports private data
+* **Upload files**: it supports uploading files either to arweave or a dedicated s3 type object storage (coming soon)
+* You can **eliminate data islands by forking an existing surfDB node**: if you want to create a frontend on someone else's data you can just **fork their node and then use your node to build out your frontend**, You don't have to start from 0, and the main data node owner can even monetize this. (coming soon)
+* Instantly deploy it in just a few clicks (coming soon)
+* Supports private data (coming soon)
 
 ## Let's jump right in?
 
