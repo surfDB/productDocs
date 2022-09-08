@@ -15,14 +15,15 @@ We need to first install the surf server binary, currently only supported on lin
 {% tabs %}
 {% tab title="Linux" %}
 ```bash
-curl -L -o surf-linux https://bafybeibohpwkbx4r57aauyh5unaubwvjhofpfitg7czsz3jck4js3hnbwe.ipfs.gateway.valist.io/ipfs/bafybeibohpwkbx4r57aauyh5unaubwvjhofpfitg7czsz3jck4js3hnbwe/surf-linux
-chmod +x surf-linux
+curl -L -o surf https://bafybeibohpwkbx4r57aauyh5unaubwvjhofpfitg7czsz3jck4js3hnbwe.ipfs.gateway.valist.io/ipfs/bafybeibohpwkbx4r57aauyh5unaubwvjhofpfitg7czsz3jck4js3hnbwe/surf-linux
+chmod +x surf
+sudo cp ./surf /usr/local/bin
 ```
 {% endtab %}
 
 {% tab title="MacOS" %}
 ```bash
-curl -L -o https://bafybeibohpwkbx4r57aauyh5unaubwvjhofpfitg7czsz3jck4js3hnbwe.ipfs.gateway.valist.io/ipfs/bafybeibohpwkbx4r57aauyh5unaubwvjhofpfitg7czsz3jck4js3hnbwe/surf-macos
+curl -L -o surf https://bafybeibohpwkbx4r57aauyh5unaubwvjhofpfitg7czsz3jck4js3hnbwe.ipfs.gateway.valist.io/ipfs/bafybeibohpwkbx4r57aauyh5unaubwvjhofpfitg7czsz3jck4js3hnbwe/surf-macos
 ```
 {% endtab %}
 {% endtabs %}
@@ -68,7 +69,7 @@ docker-compose up
 ## Run the binary
 
 ```bash
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/Todo?schema=public REDIS_HOST=localhost ./surf-linux
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/Todo?schema=public REDIS_HOST=localhost surf
 ```
 
 Now you should see the following output
