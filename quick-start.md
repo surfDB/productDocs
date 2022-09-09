@@ -152,6 +152,28 @@ This is done to ensure we have a single instance of the surfclient througout all
 
 ## Authenticate
 
+Before we proceed we need to install [SIWE](https://www.npmjs.com/package/siwe)
+
+{% tabs %}
+{% tab title="yarn" %}
+```bash
+yarn add siwe
+```
+{% endtab %}
+
+{% tab title="pnpm" %}
+```bash
+pnpm add siwe
+```
+{% endtab %}
+
+{% tab title="npm" %}
+```bash
+npm i siwe
+```
+{% endtab %}
+{% endtabs %}
+
 First we need to get the nonce
 
 ```typescript
@@ -180,10 +202,10 @@ export default async function handler(
 
 ```
 
-Next we need to login
+Next we will create the verify endpoint
 
 ```typescript
-// pages/api/auth/login.ts
+// pages/api/auth/verify.ts
 import { SurfClient } from "@surfdb/client-sdk";
 import { NextApiRequest, NextApiResponse } from "next";
 import getConfig from "next/config";
@@ -195,9 +217,9 @@ export default async function handler(
   const { method } = req;
   switch (method) {
     case "POST":
-      const { publicRuntimeConfig } = getConfig();
-      const { surfClient }: { surfClient: SurfClient } = publicRuntimeConfig;
-      const resp = await surfClient.authenticate(req.body.authsig);
+      const { serverRuntimeConfig } = getConfig();
+      const { surfClient }: { surfClient: SurfClient } = serverRuntimeConfig;
+      const resp = await surfClient.authenticate(req.body.authSig);
       res.status(200).json("ok");
       break;
     default:
@@ -206,13 +228,10 @@ export default async function handler(
   }
 }
 
+
 ```
 
 This is how you can use the apis in the frontend to complete the authentication
-
-{% hint style="info" %}
-We use [SIWE](https://www.npmjs.com/package/siwe) for authentication. You need to have that installed
-{% endhint %}
 
 ```typescript
 const res = await fetch("/api/auth/nonce", {
@@ -242,6 +261,162 @@ const loginres = await fetch("/api/auth/login", {
     },
   }),
 });
+```
+
+## Using with rainbow kit
+
+We can use the APIs we created earlier with [rainbow kit](https://www.rainbowkit.com/docs/custom-authentication) custom auth adapter
+
+```typescript
+import "../styles/globals.css";
+import "@rainbow-me/rainbowkit/styles.css";
+import type { AppProps } from "next/app";
+import {
+  RainbowKitProvider,
+  getDefaultWallets,
+  darkTheme,
+  RainbowKitAuthenticationProvider,
+  createAuthenticationAdapter,
+} from "@rainbow-me/rainbowkit";
+import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
+import { alchemyProvider } from "wagmi/providers/alchemy";
+import { publicProvider } from "wagmi/providers/public";
+import { createTheme, NextUIProvider } from "@nextui-org/react";
+import { nextUITheme } from "../app/utils/theme";
+import "@fontsource/nunito";
+import { useEffect, useMemo, useState } from "react";
+import { UserContext } from "../app/context/userContext";
+import { User } from "..";
+import { SiweMessage } from "siwe";
+
+const { chains, provider, webSocketProvider } = configureChains(
+  [
+    chain.mainnet,
+    chain.polygon,
+    chain.optimism,
+    chain.arbitrum,
+    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true"
+      ? [chain.goerli, chain.kovan, chain.rinkeby, chain.ropsten]
+      : []),
+  ],
+  [
+    alchemyProvider({
+      // This is Alchemy's default API key.
+      // You can get your own at https://dashboard.alchemyapi.io
+      apiKey: "_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
+    }),
+    publicProvider(),
+  ]
+);
+
+const { connectors } = getDefaultWallets({
+  appName: "RainbowKit App",
+  chains,
+});
+
+const wagmiClient = createClient({
+  autoConnect: true,
+  connectors,
+  provider,
+  webSocketProvider,
+});
+
+const darkNextTheme = createTheme({
+  type: "dark",
+});
+
+function MyApp({ Component, pageProps }: AppProps) {
+  const [authenticationStatus, setAuthenticationStatus] = useState<
+    "loading" | "authenticated" | "unauthenticated"
+  >("loading");
+
+  const [user, setUser] = useState<User | undefined>();
+
+  const userContextValue = useMemo(
+    () => ({ user, setUser, authenticationStatus, setAuthenticationStatus }),
+    [user, setUser, authenticationStatus, setAuthenticationStatus]
+  );
+
+  const authenticationAdapter = createAuthenticationAdapter({
+    getNonce: async () => {
+      const response = await fetch("/api/auth/nonce");
+      return await response.text();
+    },
+    createMessage: ({ nonce, address, chainId }) => {
+      return new SiweMessage({
+        domain: window.location.host,
+        address,
+        statement: "Sign in with Ethereum to the app.",
+        uri: window.location.origin,
+        version: "1",
+        chainId,
+        nonce,
+      });
+    },
+    getMessageBody: ({ message }) => {
+      return message.prepareMessage();
+    },
+    verify: async ({ message, signature }) => {
+      console.log({ signature });
+      const verifyRes = await fetch("/api/auth/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, signature }),
+      });
+      console.log({ verifyRes });
+      setAuthenticationStatus(
+        verifyRes.ok ? "authenticated" : "unauthenticated"
+      );
+      return Boolean(verifyRes.ok);
+    },
+    signOut: async () => {
+      await fetch("/api/auth/logout");
+      setAuthenticationStatus("unauthenticated");
+      setUser(undefined);
+    },
+  });
+
+  useEffect(() => {
+    (async () => {
+      // if (authenticationStatus !== "authenticated") {
+      const response = await fetch("/api/auth/me");
+      const data = await response.json();
+      setAuthenticationStatus(
+        data?.user?.address ? "authenticated" : "unauthenticated"
+      );
+      setUser(data?.user);
+      // }
+    })();
+  }, [authenticationStatus]);
+
+  return (
+    <WagmiConfig client={wagmiClient}>
+      <RainbowKitAuthenticationProvider
+        adapter={authenticationAdapter}
+        status={authenticationStatus}
+      >
+        <RainbowKitProvider
+          chains={chains}
+          theme={darkTheme({
+            borderRadius: "large",
+            fontStack: "system",
+            overlayBlur: "large",
+            accentColor: "#3730a3",
+          })}
+          modalSize="compact"
+        >
+          <UserContext.Provider value={userContextValue}>
+            <NextUIProvider theme={nextUITheme}>
+              <Component {...pageProps} />
+            </NextUIProvider>
+          </UserContext.Provider>
+        </RainbowKitProvider>
+      </RainbowKitAuthenticationProvider>
+    </WagmiConfig>
+  );
+}
+
+export default MyApp;
 ```
 
 ## Create your first data
