@@ -63,7 +63,7 @@ volumes:
 ```
 
 ```bash
-docker-compose up
+docker-compose up -d
 ```
 
 ## Run the binary
