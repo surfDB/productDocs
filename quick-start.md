@@ -78,6 +78,30 @@ Now you should see the following output
 
 ## Install the Surf Client SDK
 
+Before we add client sdk we need to install the peer dependencies
+
+{% tabs %}
+{% tab title="yarn" %}
+```bash
+yarn add axios socket.io-client tslib
+```
+{% endtab %}
+
+{% tab title="pnpm" %}
+```bash
+pnpm add axios socket.io-client tslib
+```
+{% endtab %}
+
+{% tab title="npm" %}
+```bash
+npm i axios socket.io-client tslib
+```
+{% endtab %}
+{% endtabs %}
+
+Now we install the sdk
+
 {% tabs %}
 {% tab title="yarn" %}
 ```bash
