@@ -274,19 +274,13 @@ import type { AppProps } from "next/app";
 import {
   RainbowKitProvider,
   getDefaultWallets,
-  darkTheme,
-  RainbowKitAuthenticationProvider,
   createAuthenticationAdapter,
+  RainbowKitAuthenticationProvider,
 } from "@rainbow-me/rainbowkit";
 import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
-import { createTheme, NextUIProvider } from "@nextui-org/react";
-import { nextUITheme } from "../app/utils/theme";
-import "@fontsource/nunito";
-import { useEffect, useMemo, useState } from "react";
-import { UserContext } from "../app/context/userContext";
-import { User } from "..";
+import { useEffect, useState } from "react";
 import { SiweMessage } from "siwe";
 
 const { chains, provider, webSocketProvider } = configureChains(
@@ -321,26 +315,16 @@ const wagmiClient = createClient({
   webSocketProvider,
 });
 
-const darkNextTheme = createTheme({
-  type: "dark",
-});
-
 function MyApp({ Component, pageProps }: AppProps) {
   const [authenticationStatus, setAuthenticationStatus] = useState<
     "loading" | "authenticated" | "unauthenticated"
-  >("loading");
-
-  const [user, setUser] = useState<User | undefined>();
-
-  const userContextValue = useMemo(
-    () => ({ user, setUser, authenticationStatus, setAuthenticationStatus }),
-    [user, setUser, authenticationStatus, setAuthenticationStatus]
-  );
+  >("unauthenticated");
 
   const authenticationAdapter = createAuthenticationAdapter({
     getNonce: async () => {
       const response = await fetch("/api/auth/nonce");
-      return await response.text();
+      const res = await response.json();
+      return res;
     },
     createMessage: ({ nonce, address, chainId }) => {
       return new SiweMessage({
@@ -361,7 +345,13 @@ function MyApp({ Component, pageProps }: AppProps) {
       const verifyRes = await fetch("/api/auth/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, signature }),
+        body: JSON.stringify({
+          authSig: {
+            message,
+            signature,
+            signedMessage: message.prepareMessage(),
+          },
+        }),
       });
       console.log({ verifyRes });
       setAuthenticationStatus(
@@ -372,22 +362,8 @@ function MyApp({ Component, pageProps }: AppProps) {
     signOut: async () => {
       await fetch("/api/auth/logout");
       setAuthenticationStatus("unauthenticated");
-      setUser(undefined);
     },
   });
-
-  useEffect(() => {
-    (async () => {
-      // if (authenticationStatus !== "authenticated") {
-      const response = await fetch("/api/auth/me");
-      const data = await response.json();
-      setAuthenticationStatus(
-        data?.user?.address ? "authenticated" : "unauthenticated"
-      );
-      setUser(data?.user);
-      // }
-    })();
-  }, [authenticationStatus]);
 
   return (
     <WagmiConfig client={wagmiClient}>
@@ -395,21 +371,8 @@ function MyApp({ Component, pageProps }: AppProps) {
         adapter={authenticationAdapter}
         status={authenticationStatus}
       >
-        <RainbowKitProvider
-          chains={chains}
-          theme={darkTheme({
-            borderRadius: "large",
-            fontStack: "system",
-            overlayBlur: "large",
-            accentColor: "#3730a3",
-          })}
-          modalSize="compact"
-        >
-          <UserContext.Provider value={userContextValue}>
-            <NextUIProvider theme={nextUITheme}>
-              <Component {...pageProps} />
-            </NextUIProvider>
-          </UserContext.Provider>
+        <RainbowKitProvider chains={chains}>
+          <Component {...pageProps} />
         </RainbowKitProvider>
       </RainbowKitAuthenticationProvider>
     </WagmiConfig>
