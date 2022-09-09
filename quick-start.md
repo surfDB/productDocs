@@ -15,7 +15,8 @@ We need to first install the surf server binary, currently only supported on lin
 {% tabs %}
 {% tab title="Linux" %}
 ```bash
-curl -L -o surf https://bafybeibohpwkbx4r57aauyh5unaubwvjhofpfitg7czsz3jck4js3hnbwe.ipfs.gateway.valist.io/ipfs/bafybeibohpwkbx4r57aauyh5unaubwvjhofpfitg7czsz3jck4js3hnbwe/surf-linux
+# download binary and add it to path
+curl -L -o surf https://bafybeiegma54dk2d5k4wrdspgjgpler5azixbjt5p473hc5aal2izgwcaq.ipfs.gateway.valist.io/ipfs/bafybeiegma54dk2d5k4wrdspgjgpler5azixbjt5p473hc5aal2izgwcaq/surf-linux
 chmod +x surf
 sudo cp ./surf /usr/local/bin
 ```
@@ -23,7 +24,7 @@ sudo cp ./surf /usr/local/bin
 
 {% tab title="MacOS" %}
 ```bash
-curl -L -o surf https://bafybeibohpwkbx4r57aauyh5unaubwvjhofpfitg7czsz3jck4js3hnbwe.ipfs.gateway.valist.io/ipfs/bafybeibohpwkbx4r57aauyh5unaubwvjhofpfitg7czsz3jck4js3hnbwe/surf-macos
+curl -L -o surf https://bafybeiegma54dk2d5k4wrdspgjgpler5azixbjt5p473hc5aal2izgwcaq.ipfs.gateway.valist.io/ipfs/bafybeiegma54dk2d5k4wrdspgjgpler5azixbjt5p473hc5aal2izgwcaq/surf-macos
 ```
 {% endtab %}
 {% endtabs %}
@@ -34,22 +35,21 @@ The binary has not been tested on macOS.
 
 ## Run the databases
 
-Make sure you have a postgres and a redis instance running. You can copy this docker compose file to get it up quickly
+Make sure you have a mongodb and a redis instance running. You can copy this docker compose file to get it up quickly
 
 ```yaml
 version: "3.3"
 services:
-  postgres:
-    image: postgres:latest
-    hostname: postgres
+  mongo:
+    image: mongo:latest
+    restart: always
     ports:
-      - 5432:5432
+      - 27017:27017
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: Todo
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - db-data:/data/db
     restart: unless-stopped
 
   redis:
@@ -58,8 +58,8 @@ services:
       - 6379:6379
 
 volumes:
-  postgres-data:
-
+  db-data:
+  
 ```
 
 ```bash
@@ -69,12 +69,12 @@ docker-compose up
 ## Run the binary
 
 ```bash
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/Todo?schema=public REDIS_HOST=localhost surf
+MONGO_URL=mongodb://root:example@localhost:27017/ REDIS_HOST=localhost surf
 ```
 
 Now you should see the following output
 
-<figure><img src=".gitbook/assets/image.png" alt=""><figcaption><p>server listening on port 3000</p></figcaption></figure>
+<figure><img src=".gitbook/assets/image.png" alt=""><figcaption></figcaption></figure>
 
 ## Install the Surf Client SDK
 
