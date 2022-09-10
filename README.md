@@ -35,6 +35,6 @@ Surf DB has the following features:
 
 Jump in to the quick start docs and get started:
 
-{% content-ref url="quick-start.md" %}
-[quick-start.md](quick-start.md)
+{% content-ref url="quick-start/" %}
+[quick-start](quick-start/)
 {% endcontent-ref %}

@@ -1,37 +1,4 @@
----
-description: Get started with the surfDB
----
-
-# Quick Start
-
-{% hint style="warning" %}
-**Caution:** We are still in very early stage so things can break and change. The docs will be updated frequently.
-{% endhint %}
-
-## Install the binary
-
-We need to first install the surf server binary, currently only supported on linux and macos
-
-{% tabs %}
-{% tab title="Linux" %}
-```bash
-# download binary and add it to path
-curl -L -o surf https://bafybeied63z6kzpwezvabymee62kjry5su2iy4g47xyvkjfoxhw5ba6duy.ipfs.gateway.valist.io/ipfs/bafybeied63z6kzpwezvabymee62kjry5su2iy4g47xyvkjfoxhw5ba6duy/surf-linux
-chmod +x surf
-sudo cp ./surf /usr/local/bin
-```
-{% endtab %}
-
-{% tab title="MacOS" %}
-```bash
-curl -L -o surf https://bafybeied63z6kzpwezvabymee62kjry5su2iy4g47xyvkjfoxhw5ba6duy.ipfs.gateway.valist.io/ipfs/bafybeied63z6kzpwezvabymee62kjry5su2iy4g47xyvkjfoxhw5ba6duy/surf-macos
-```
-{% endtab %}
-{% endtabs %}
-
-{% hint style="warning" %}
-The binary has not been tested on macOS.
-{% endhint %}
+# Custom Installation
 
 ## Run the databases
 
@@ -69,36 +36,16 @@ docker-compose up -d
 ## Run the binary
 
 ```bash
-MONGO_URL=mongodb://root:example@localhost:27017/ REDIS_HOST=localhost surf
+MONGO_URL=mongodb://root:example@localhost:27017/ REDIS_HOST=localhost SURF_PORT=300 surf
 ```
 
 Now you should see the following output
 
-<figure><img src=".gitbook/assets/image.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (3).png" alt=""><figcaption></figcaption></figure>
 
 ## Install the Surf Client SDK
 
 Before we add client sdk we need to install the peer dependencies
-
-{% tabs %}
-{% tab title="yarn" %}
-```bash
-yarn add axios socket.io-client tslib
-```
-{% endtab %}
-
-{% tab title="pnpm" %}
-```bash
-pnpm add axios socket.io-client tslib
-```
-{% endtab %}
-
-{% tab title="npm" %}
-```bash
-npm i axios socket.io-client tslib
-```
-{% endtab %}
-{% endtabs %}
 
 Now we install the sdk
 
@@ -126,29 +73,7 @@ npm i @surfdb/client-sdk
 We will be using next.js api to setup the surfclient, you can use the same in other backend frameworks as well
 {% endhint %}
 
-## Configure next.js
 
-Add this in the next.config.js&#x20;
-
-```javascript
-/** @type {import('next').NextConfig} */
-const { SurfClient, SurfRealtime } = require("@surfdb/client-sdk");
-
-const surfClient = new SurfClient({
-  client: "http://localhost:3000",
-});
-
-const nextConfig = {
-  reactStrictMode: true,
-  serverRuntimeConfig: {
-    surfClient,
-  },
-};
-
-module.exports = nextConfig;
-```
-
-This is done to ensure we have a single instance of the surfclient througout all the backend apis
 
 ## Authenticate
 
@@ -177,10 +102,10 @@ npm i siwe
 First we need to get the nonce
 
 ```typescript
+/* eslint-disable no-case-declarations */
 // pages/api/auth/nonce.ts
-import getConfig from "next/config";
 import { NextApiRequest, NextApiResponse } from "next";
-import { SurfClient } from "@surfdb/client-sdk";
+import { surfClient } from "../../../lib/surfClient";
 
 export default async function handler(
   req: NextApiRequest,
@@ -189,10 +114,7 @@ export default async function handler(
   const { method } = req;
   switch (method) {
     case "GET":
-      const { serverRuntimeConfig } = getConfig();
-      const { surfClient }: { surfClient: SurfClient } = serverRuntimeConfig;
-      const nonce = await surfClient.getAuthNonce();
-      console.log({ nonce });
+      const nonce = await surfClient.getAuthNonce(req, res);
       return res.status(200).json(nonce);
     default:
       res.setHeader("Allow", ["GET"]);
@@ -206,9 +128,8 @@ Next we will create the verify endpoint
 
 ```typescript
 // pages/api/auth/verify.ts
-import { SurfClient } from "@surfdb/client-sdk";
 import { NextApiRequest, NextApiResponse } from "next";
-import getConfig from "next/config";
+import { surfClient } from "../../../lib/surfClient";
 
 export default async function handler(
   req: NextApiRequest,
@@ -217,10 +138,10 @@ export default async function handler(
   const { method } = req;
   switch (method) {
     case "POST":
-      const { serverRuntimeConfig } = getConfig();
-      const { surfClient }: { surfClient: SurfClient } = serverRuntimeConfig;
-      const resp = await surfClient.authenticate(req.body.authSig);
-      res.status(200).json("ok");
+      const authRes = await surfClient.authenticate(req, res, {
+        authSig: req.body.authSig,
+      });
+      res.status(200).json(authRes);
       break;
     default:
       res.setHeader("Allow", ["GET"]);
@@ -228,6 +149,55 @@ export default async function handler(
   }
 }
 
+```
+
+Logout
+
+```typescript
+/* eslint-disable no-case-declarations */
+// pages/api/auth/logout.ts
+import { NextApiRequest, NextApiResponse } from "next";
+import { surfClient } from "../../../lib/surfClient";
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const { method } = req;
+  switch (method) {
+    case "POST":
+      const resp = await surfClient.logout(req, res);
+      return res.status(200).json(resp);
+    default:
+      res.setHeader("Allow", ["GET"]);
+      res.status(405).end(`Method ${method} Not Allowed`);
+  }
+}
+java
+```
+
+Me endpoint to check if you have logged in
+
+```javascript
+/* eslint-disable no-case-declarations */
+// pages/api/auth/me.ts
+import { NextApiRequest, NextApiResponse } from "next";
+import { surfClient } from "../../../lib/surfClient";
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const { method } = req;
+  switch (method) {
+    case "GET":
+      const profile = await surfClient.getProfile(req, res);
+      return res.status(200).json(profile);
+    default:
+      res.setHeader("Allow", ["GET"]);
+      res.status(405).end(`Method ${method} Not Allowed`);
+  }
+}
 
 ```
 
@@ -276,6 +246,7 @@ import {
   getDefaultWallets,
   createAuthenticationAdapter,
   RainbowKitAuthenticationProvider,
+  darkTheme,
 } from "@rainbow-me/rainbowkit";
 import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
@@ -318,7 +289,9 @@ const wagmiClient = createClient({
 function MyApp({ Component, pageProps }: AppProps) {
   const [authenticationStatus, setAuthenticationStatus] = useState<
     "loading" | "authenticated" | "unauthenticated"
-  >("unauthenticated");
+  >("loading");
+
+  const [user, setUser] = useState(null);
 
   const authenticationAdapter = createAuthenticationAdapter({
     getNonce: async () => {
@@ -360,10 +333,23 @@ function MyApp({ Component, pageProps }: AppProps) {
       return Boolean(verifyRes.ok);
     },
     signOut: async () => {
-      await fetch("/api/auth/logout");
+      await fetch("/api/auth/logout", {
+        method: "POST",
+      });
       setAuthenticationStatus("unauthenticated");
     },
   });
+
+  useEffect(() => {
+    (async () => {
+      const res = await fetch("/api/auth/me");
+      const user = await res.json();
+      console.log({ user });
+      setAuthenticationStatus(
+        user.address ? "authenticated" : "unauthenticated"
+      );
+    })();
+  }, []);
 
   return (
     <WagmiConfig client={wagmiClient}>
@@ -371,7 +357,11 @@ function MyApp({ Component, pageProps }: AppProps) {
         adapter={authenticationAdapter}
         status={authenticationStatus}
       >
-        <RainbowKitProvider chains={chains}>
+        <RainbowKitProvider
+          chains={chains}
+          theme={darkTheme()}
+          modalSize="compact"
+        >
           <Component {...pageProps} />
         </RainbowKitProvider>
       </RainbowKitAuthenticationProvider>
@@ -380,52 +370,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 }
 
 export default MyApp;
-```
-
-## Create your first data
-
-```javascript
-await surfClient.create("schemaName", {
-  name: "test",
-  description: "this is just a description",
-});
-```
-
-## Read it
-
-```typescript
-// get a particular data by id and schema name
-await surfClient.get("schemaName", 1);
-
-// get all rows in a schema
-await surfClient.getAll("schemaName");
-```
-
-## Update it
-
-```javascript
-await surfClient.update("schemaName", 1, {
-  name: "updated title",
-  description: "this description is updated",
-});
-```
-
-## Realtime
-
-```javascript
-const realtime = new SurfRealtime({
-  client: "http://localhost:3000",
-});
-
-// get updates whenver a row is updated
-realtime.onUpdate((update) => {
-  console.log({ update });
-});
-
-// get updates whenever a new row is created
-realtime.onCreate((create) => {
-  console.log({ create });
-});
 
 ```
 
+##
