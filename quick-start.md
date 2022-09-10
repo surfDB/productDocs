@@ -16,7 +16,7 @@ We need to first install the surf server binary, currently only supported on lin
 {% tab title="Linux" %}
 ```bash
 # download binary and add it to path
-curl -L -o surf https://bafybeiegma54dk2d5k4wrdspgjgpler5azixbjt5p473hc5aal2izgwcaq.ipfs.gateway.valist.io/ipfs/bafybeiegma54dk2d5k4wrdspgjgpler5azixbjt5p473hc5aal2izgwcaq/surf-linux
+curl -L -o surf https://bafybeied63z6kzpwezvabymee62kjry5su2iy4g47xyvkjfoxhw5ba6duy.ipfs.gateway.valist.io/ipfs/bafybeied63z6kzpwezvabymee62kjry5su2iy4g47xyvkjfoxhw5ba6duy/surf-linux
 chmod +x surf
 sudo cp ./surf /usr/local/bin
 ```
@@ -24,7 +24,7 @@ sudo cp ./surf /usr/local/bin
 
 {% tab title="MacOS" %}
 ```bash
-curl -L -o surf https://bafybeiegma54dk2d5k4wrdspgjgpler5azixbjt5p473hc5aal2izgwcaq.ipfs.gateway.valist.io/ipfs/bafybeiegma54dk2d5k4wrdspgjgpler5azixbjt5p473hc5aal2izgwcaq/surf-macos
+curl -L -o surf https://bafybeied63z6kzpwezvabymee62kjry5su2iy4g47xyvkjfoxhw5ba6duy.ipfs.gateway.valist.io/ipfs/bafybeied63z6kzpwezvabymee62kjry5su2iy4g47xyvkjfoxhw5ba6duy/surf-macos
 ```
 {% endtab %}
 {% endtabs %}
