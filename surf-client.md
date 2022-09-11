@@ -4,9 +4,17 @@ description: Get started with creating,reading and updating data
 
 # Surf Client
 
+{% hint style="info" %}
+Surf client sdk can only be used server side for now
+{% endhint %}
+
 ## Create your first data
 
+Need to ensure we are authenticated before we call any of the write functions
+
 ```javascript
+// req: API request 
+// res: API response
 await surfClient.create(req, res, {
   schema: "test",
   data: req.body,
