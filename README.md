@@ -4,7 +4,7 @@ cover: .gitbook/assets/Color logo with background.png
 coverY: -6.574642126789364
 ---
 
-# Surf DB
+# Introduction
 
 ## Introduction
 
@@ -18,6 +18,8 @@ We wanted to make something which provides developers the ease of use of using w
 
 Using a decentralized database also allows the users to own their data instead of the apps owning the data which we see in a lot of dapps these days.
 
+With surf you can also get a dedicated Ceramic and an IPFS node with 250 GB of storage, so you can use the surf node to upload files easily on IPFS instead of relying on infura or web3.storage wich is extremely slow.
+
 ## Features
 
 Surf DB has the following features:
@@ -26,10 +28,10 @@ Surf DB has the following features:
 * Ability to have **contract level access control condition**, ex. We can have a condtion which allows only members of multi sig to update the row (in our case, the ceramic stream)
 * Can be decentralized by **hosting mutliple nodes**: the data itself is stored on ceramic which is decentralized but the caching and the ceramic indexer itself also can be decentralized
 * It supports **realtime updates**:get updated whenever there is a change in the database
-* **Upload files**: it supports uploading files either to arweave or a dedicated s3 type object storage (coming soon)
+* **Can have your own dedicated IPFS and ceramic node and use it for file uploads**
 * You can **eliminate data islands by forking an existing surfDB node**: if you want to create a frontend on someone else's data you can just **fork their node and then use your node to build out your frontend**, You don't have to start from 0, and the main data node owner can even monetize this. (coming soon)
 * Instantly deploy it in just a few clicks (coming soon)
-* Supports private data (coming soon)
+* Supports private data
 
 ## Let's jump right in?
 
