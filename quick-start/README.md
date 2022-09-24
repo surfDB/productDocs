@@ -16,7 +16,7 @@ We need to first install the surf server binary, currently only supported on lin
 {% tab title="Linux" %}
 ```bash
 # download binary and add it to path
-curl -L -o surf https://bafybeiglsoezey24a6eu6jbkvs4qdcjcz6asq7ds224c6dukhiigyvtdo4.ipfs.gateway.valist.io/ipfs/bafybeiglsoezey24a6eu6jbkvs4qdcjcz6asq7ds224c6dukhiigyvtdo4/surf-linux
+curl -L -o surf https://bafybeihorgoj25jmueo4qvg53ioh5i6knbilqnpilywxmm546outgrrpuy.ipfs.gateway.valist.io/ipfs/bafybeihorgoj25jmueo4qvg53ioh5i6knbilqnpilywxmm546outgrrpuy/surf-linux
 chmod +x surf
 sudo cp ./surf /usr/local/bin
 ```
@@ -24,7 +24,7 @@ sudo cp ./surf /usr/local/bin
 
 {% tab title="MacOS" %}
 ```bash
-curl -L -o surf https://bafybeiglsoezey24a6eu6jbkvs4qdcjcz6asq7ds224c6dukhiigyvtdo4.ipfs.gateway.valist.io/ipfs/bafybeiglsoezey24a6eu6jbkvs4qdcjcz6asq7ds224c6dukhiigyvtdo4/surf-linux
+curl -L -o surf https://bafybeihorgoj25jmueo4qvg53ioh5i6knbilqnpilywxmm546outgrrpuy.ipfs.gateway.valist.io/ipfs/bafybeihorgoj25jmueo4qvg53ioh5i6knbilqnpilywxmm546outgrrpuy/surf-linux
 ```
 {% endtab %}
 {% endtabs %}
