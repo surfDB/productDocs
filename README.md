@@ -33,6 +33,10 @@ Surf DB has the following features:
 * Instantly deploy it in just a few clicks (coming soon)
 * Supports private data
 
+## Try it out
+
+[https://sandbox.surfdb.xyz/](https://sandbox.surfdb.xyz/)
+
 ## Let's jump right in?
 
 Jump in to the quick start docs and get started:

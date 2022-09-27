@@ -68,3 +68,13 @@ yarn dev
 ```
 
 <figure><img src="../.gitbook/assets/image (2).png" alt=""><figcaption><p>Homepage</p></figcaption></figure>
+
+## Next Steps
+
+Authenticate yourself with the surf client by clicking on connect wallet.
+
+Then open console and click on create data to create an entry in the database and check the result, then click on get data and see the data you created. You can even check the ceramic streamId given in the result on [https://cerscan.com/](https://cerscan.com/)
+
+Check the api folder to see the api's we have created for data and auth.
+
+Head over to [Surf Client page](../surf-client.md) now to check what you can do with the surf client.
