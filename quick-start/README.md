@@ -16,7 +16,7 @@ We need to first install the surf server binary, currently only supported on lin
 {% tab title="Linux" %}
 ```bash
 # download binary and add it to path
-curl -L -o surf shorturl.at/bcrX6
+curl -L -o surf https://bafybeiaa3iplonzhxgda7zolwwy43pzfe3gqwodxzvzq3ywc7v3tkt4dtu.ipfs.gateway.valist.io/ipfs/bafybeiaa3iplonzhxgda7zolwwy43pzfe3gqwodxzvzq3ywc7v3tkt4dtu/surf-linux
 chmod +x surf
 sudo cp ./surf /usr/local/bin
 ```
